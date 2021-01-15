@@ -126,7 +126,9 @@ def create_files(last_element, coverage_elements, algo_name):
         f.write(str(element.y) + ' ' + str(element.x) + '\n')
     f.close()
 
+# dijkstra
 
+## koigil algus prg 2,2 aga pmst see voib ju must ka olla prg niiet siin voib errorit anda
 first = (2, 2)
 maze, image_vertices = establishVertices("maze.png", first)
 end = [88, 23]
