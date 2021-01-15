@@ -154,9 +154,19 @@ def delete_wall(rand_wall_index, walls):
     walls.pop(rand_wall_index)
 
 def create_maze_png(maze):
+    maze = np.array(maze)
     white = (255, 255, 255)
     black = (0, 0, 0)
+    special = (200, 0, 200)
     img = np.array([[white if j == cell else black for j in i] for i in maze])
+    random_end = False
+    maze_shape = maze.shape
+    while not random_end:
+        random_row = np.random.randint(maze_shape[0])
+        random_col = np.random.randint(maze_shape[0])
+        if (img[random_row][random_col] == white).all():
+            img[random_row][random_col] = special
+            random_end = True
     cv.imwrite("maze.png", img)
 
 
