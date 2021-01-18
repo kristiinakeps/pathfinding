@@ -258,27 +258,39 @@ def make_into_world(maze):
     color_random_areas(6, maze)
     return start_coord, end_coord
 
-def create_maze_png(maze):
+def color_pixels(maze, visited=None):
     # BGR colors
+    if visited is None:
+        visited = []
+    colormap = {cell: (255, 255, 255),
+                wall: (0, 0, 0),
+                desert: (102, 204, 255),
+                sea: (255, 204, 102),
+                ice: (255, 153, 204),
+                end: (200, 0, 200),
+                start: (153, 0, 0)
+                }
+    visited_colormap = {cell: (166, 166, 166),
+                wall: (0, 0, 0),
+                desert: (137, 202, 203),
+                sea: (110, 104, 80),
+                ice: (110, 80, 109),
+                end: (200, 0, 200),
+                start: (153, 0, 0)
+                }
     maze = np.array(maze)
-    white = (255, 255, 255)
-    black = (0, 0, 0)
-    blue = (255, 204, 102)
-    yellow = (102, 204, 255)
-    purple = (255, 153, 204)
-    end_color = (200, 0, 200)
-    start_color = (153, 0, 0)
-    img = np.array([[white if j == cell
-                     else blue if j == sea
-                     else yellow if j == desert
-                     else purple if j == ice
-                     else end_color if j == end
-                     else start_color if j == start
-                     else black for j in i] for i in maze])
+    img = np.array([[colormap[j] for j in i] for i in maze])
+    for row, column in visited:
+        img[row, column] = visited_colormap[maze[row][column]]
+    return img
 
-    cv.imwrite("maze.png", img)
+def create_maze_png(maze, filename, visited=None):
+    if visited is None:
+        visited = []
+    img = color_pixels(maze, visited)
+    cv.imwrite(filename, img)
 
 
 maze, entrance, exit = init_maze(70, 50)
 start_coord, end_coord = make_into_world(maze)
-create_maze_png(maze)
+create_maze_png(maze, "maze.png")
