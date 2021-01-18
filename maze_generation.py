@@ -7,6 +7,9 @@ import numpy as np
 cell = "c"
 wall = "w"
 unvisited = "u"
+sea = "s"
+desert = "d"
+ice = "i"
 
 def init_maze(width, height):
     maze = []
@@ -162,13 +165,85 @@ def delete_random_walls(nr_of_walls, maze):
             maze[y][x] = cell
             nr_of_walls -= 1
 
+def color_random_areas(nr_of_areas, maze):
+    colors = [sea, desert, ice]
+    shapes = ["diamond", "rectangle", "line"]
+    for i in range(nr_of_areas):
+        color = random.choice(colors)
+        shape = random.choice(shapes)
+        if shape == "diamond":
+            draw_diamond(maze, color)
+        elif shape == "rectangle":
+            draw_rectangle(maze, color)
+        else:
+            draw_line(maze, color)
+
+
+def draw_diamond(maze, color):
+    height, width = len(maze), len(maze[0])
+    max_shape_size = min(height, width) // 3 + (0 if (min(height, width) // 3) % 2 == 1 else 1)
+    size = random.randint(5, max_shape_size)
+    y = random.randint(0, height - 1 - size)
+    x = random.randint(0, width - 1 - size)
+    middle = size // 2
+    to_color = 1
+    for i in range(size):
+        if i < middle:
+            for j in range(middle - i, middle - i + to_color):
+                if maze[y + i][x + j] != wall:
+                    maze[y + i][x + j] = color
+            to_color += 2
+        if i == middle:
+            for j in range(size):
+                if maze[y + i][x + j] != wall:
+                    maze[y + i][x + j] = color
+            to_color -= 2
+        if i > middle:
+            for j in range(i - middle, i - middle + to_color):
+                if maze[y + i][x + j] != wall:
+                    maze[y + i][x + j] = color
+            to_color -= 2
+
+def draw_line(maze, color):
+    height, width = len(maze), len(maze[0])
+    if random.randint(1, 2) == 1:
+        y = random.randint(0, height - 1)
+        for i in range(width):
+            if maze[y][i] != wall:
+                maze[y][i] = color
+    else:
+        x = random.randint(0, width - 1)
+        for i in range(height):
+            if maze[i][x] != wall:
+                maze[i][x] = color
+
+def draw_rectangle(maze, color):
+    height, width = len(maze), len(maze[0])
+    height_size = random.randint(5, height//3)
+    width_size = random.randint(5, width//3)
+    y = random.randint(0, height - 1 - height_size)
+    x = random.randint(0, width - 1 - width_size)
+
+    for i in range(height_size):
+        for j in range(width_size):
+            if maze[y + i][x + j] != wall:
+                maze[y + i][x + j] = color
+
 def create_maze_png(maze):
     white = (255, 255, 255)
     black = (0, 0, 0)
-    img = np.array([[white if j == cell else black for j in i] for i in maze])
+    blue = (102, 204, 255)
+    yellow = (255, 204, 102)
+    purple = (204, 153, 255)
+    img = np.array([[white if j == cell
+                     else blue if j == sea
+                     else yellow if j == desert
+                     else purple if j == ice
+                     else black for j in i] for i in maze])
     cv.imwrite("maze.png", img)
 
 
 maze = init_maze(70, 50)
 delete_random_walls(500, maze)
+color_random_areas(5, maze)
 create_maze_png(maze)
