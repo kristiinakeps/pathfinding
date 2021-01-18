@@ -153,6 +153,15 @@ def check_bottom_cell(maze, rand_wall, walls, height):
 def delete_wall(rand_wall_index, walls):
     walls.pop(rand_wall_index)
 
+def delete_random_walls(nr_of_walls, maze):
+    height, width = len(maze), len(maze[0])
+    while nr_of_walls > 0:
+        y = random.randint(0, height - 1)
+        x = random.randint(0, width - 1)
+        if maze[y][x] == wall:
+            maze[y][x] = cell
+            nr_of_walls -= 1
+
 def create_maze_png(maze):
     white = (255, 255, 255)
     black = (0, 0, 0)
@@ -160,5 +169,6 @@ def create_maze_png(maze):
     cv.imwrite("maze.png", img)
 
 
-maze = init_maze(120, 75)
+maze = init_maze(70, 50)
+delete_random_walls(500, maze)
 create_maze_png(maze)
