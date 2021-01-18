@@ -12,17 +12,64 @@ def dfs_neighbour_check(maze, width, height, current_width, current_height):
     if 0 <= current_height - 2:
         if maze[current_height - 2][current_width] == unvisited:
             neighbours.append([(current_height - 1, current_width), (current_height - 2, current_width)])
-    if height-1 >= current_height + 2:
+    if height - 1 >= current_height + 2:
         if maze[current_height + 2][current_width] == unvisited:
             neighbours.append([(current_height + 1, current_width), (current_height + 2, current_width)])
     if 0 <= current_width - 2:
         if maze[current_height][current_width - 2] == unvisited:
             neighbours.append([(current_height, current_width - 1), (current_height, current_width - 2)])
-    if width-1 >= current_width + 2:
+    if width - 1 >= current_width + 2:
         if maze[current_height][current_width + 2] == unvisited:
             neighbours.append([(current_height, current_width + 1), (current_height, current_width + 2)])
     random.shuffle(neighbours)
     return neighbours
+
+
+def upper_status(height_pixel, width_pixel, maze):
+    if height_pixel > 0:
+        return maze[height_pixel - 1][width_pixel]
+    else:
+        return False
+
+
+def lower_status(height_pixel, width_pixel, maze, height):
+    if height_pixel < height - 1:
+        return maze[height_pixel + 1][width_pixel]
+    else:
+        return False
+
+
+def left_status(height_pixel, width_pixel, maze):
+    if width_pixel > 0:
+        return maze[height_pixel][width_pixel - 1]
+    else:
+        return False
+
+
+def right_status(height_pixel, width_pixel, maze, width):
+    if width_pixel < width - 1:
+        return maze[height_pixel][width_pixel + 1]
+    else:
+        return False
+
+
+def delete_random_walls(percent, maze, wall_nr):
+    height, width = len(maze), len(maze[0])
+    nr_of_walls = wall_nr * percent
+    while nr_of_walls > 0:
+        y = random.randint(0, height - 1)
+        x = random.randint(0, width - 1)
+        if maze[y][x] == wall:
+            upper_s = upper_status(y, x, maze)
+            lower_s = lower_status(y, x, maze, height)
+            left_s = left_status(y, x, maze)
+            right_s = right_status(y, x, maze, width)
+            if upper_s and lower_s and left_s and right_s:
+                if (upper_s == cell and lower_s == cell and left_s == wall and right_s == wall) or (
+                        upper_s == wall and lower_s == wall and left_s == cell and right_s == cell) or (
+                        upper_s == cell and lower_s == cell and left_s == cell and right_s == cell):
+                    maze[y][x] = cell
+                    nr_of_walls -= 1
 
 
 def init_maze(width, height):
@@ -50,12 +97,18 @@ def init_maze(width, height):
             maze[new_cells[1][0]][new_cells[1][1]] = cell
             walls_stack.extend(dfs_neighbour_check(maze, width, height, new_cells[1][1], new_cells[1][0]))
 
+    wallcounter = 0
+
     for i in range(0, height):
         for j in range(0, width):
             if maze[i][j] == unvisited:
                 maze[i][j] = wall
+                wallcounter += 1
 
-    return (maze)
+    delete_random_walls(0.05, maze, wallcounter)
+
+    return maze
+
 
 def create_maze_png(maze):
     maze = np.array(maze)
