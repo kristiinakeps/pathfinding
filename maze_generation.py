@@ -292,5 +292,5 @@ def create_maze_png(maze, filename, visited=None):
 
 
 maze, entrance, exit = init_maze(70, 50)
-start_coord, end_coord = make_into_world(maze)
+#start_coord, end_coord = make_into_world(maze)
 create_maze_png(maze, "maze.png")

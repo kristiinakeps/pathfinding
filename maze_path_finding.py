@@ -7,6 +7,8 @@ left = "left"
 right = "right"
 up = "up"
 down = "down"
+forward = "continue"
+back = "backwards"
 
 def random_mouse(maze, entrance, exit):
     visited = []
@@ -30,10 +32,10 @@ def wall_follower(maze, entrance, exit):
         visited.append((row, column))
         possible = find_possible_moves(maze, row, column)
         if len(visited) == 1:
-            direction = right
+            direction = down
         else:
             direction = determine_direction(row, column, visited[-2][0], visited[-2][1])
-        row, column = find_new_direction(row, column, direction, possible)
+        (row, column), heading = find_new_direction(row, column, direction, possible)
     visited.append(exit)
     return visited
 
@@ -67,13 +69,13 @@ def find_new_direction(row, column, direction, possible):
         turn_left = (row, column + 1)
 
     if turn_right in possible:
-        return turn_right
+        return turn_right, right
     if go_forward in possible:
-        return go_forward
+        return go_forward, forward
     if turn_left in possible:
-        return turn_left
+        return turn_left, left
     else:
-        return possible[0]
+        return possible[0], back
 
 
 
@@ -97,6 +99,29 @@ def find_possible_moves(maze, row, column):
         if maze[row][column + 1] != wall:
             possible.append((row, column + 1))
     return possible
+
+def pledge(maze, entrance, exit):
+    visited = []
+    row, column = entrance
+    degrees_turned = 0
+    while (row, column) != exit:
+        visited.append((row, column))
+        # if degrees_turned is 0, then move down, if we face an obsticle, then we do wall following with right hand
+        possible = find_possible_moves(maze, row, column)
+        if degrees_turned == 0 and (row + 1, column) in possible:
+            row += 1
+        else:
+            direction = determine_direction(row, column, visited[-2][0], visited[-2][1])
+            (row, column), heading = find_new_direction(row, column, direction, possible)
+            if heading == right:
+                degrees_turned += 90
+            elif heading == left:
+                degrees_turned -= 90
+            elif heading == back:
+                degrees_turned -= 180
+    visited.append(exit)
+    return visited
+
 
 
 
