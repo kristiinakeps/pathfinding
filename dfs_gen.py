@@ -5,6 +5,11 @@ import numpy as np
 cell = "c"
 wall = "w"
 unvisited = "u"
+sea = "s"
+desert = "d"
+ice = "i"
+end = "e"
+start = "t"
 
 
 def dfs_neighbour_check(maze, width, height, current_width, current_height):
@@ -106,26 +111,135 @@ def init_maze(width, height):
                 wallcounter += 1
 
     delete_random_walls(0.05, maze, wallcounter)
-
     return maze
 
 
-def create_maze_png(maze):
+## maze_generation.py  copy start
+
+def color_random_areas(nr_of_areas, maze):
+    colors = [sea, desert, ice]
+    shapes = ["diamond", "rectangle", "line"]
+    for i in range(nr_of_areas):
+        color = random.choice(colors)
+        shape = random.choice(shapes)
+        if shape == "diamond":
+            draw_diamond(maze, color)
+        elif shape == "rectangle":
+            draw_rectangle(maze, color)
+        else:
+            draw_line(maze, color)
+
+
+def draw_diamond(maze, color):
+    height, width = len(maze), len(maze[0])
+    max_shape_size = min(height, width) // 3 + (0 if (min(height, width) // 3) % 2 == 1 else 1)
+    size = random.randint(5, max_shape_size)
+    y = random.randint(0, height - 1 - size)
+    x = random.randint(0, width - 1 - size)
+    middle = size // 2
+    to_color = 1
+    for i in range(size):
+        if i < middle:
+            for j in range(middle - i, middle - i + to_color):
+                if maze[y + i][x + j] == cell:
+                    maze[y + i][x + j] = color
+            to_color += 2
+        if i == middle:
+            for j in range(size):
+                if maze[y + i][x + j] == cell:
+                    maze[y + i][x + j] = color
+            to_color -= 2
+        if i > middle:
+            for j in range(i - middle, i - middle + to_color):
+                if maze[y + i][x + j] == cell:
+                    maze[y + i][x + j] = color
+            to_color -= 2
+
+
+def draw_line(maze, color):
+    height, width = len(maze), len(maze[0])
+    if random.randint(1, 2) == 1:
+        y = random.randint(0, height - 1)
+        for i in range(width):
+            if maze[y][i] == cell:
+                maze[y][i] = color
+    else:
+        x = random.randint(0, width - 1)
+        for i in range(height):
+            if maze[i][x] == cell:
+                maze[i][x] = color
+
+
+def draw_rectangle(maze, color):
+    height, width = len(maze), len(maze[0])
+    height_size = random.randint(5, height // 3)
+    width_size = random.randint(5, width // 3)
+    y = random.randint(0, height - 1 - height_size)
+    x = random.randint(0, width - 1 - width_size)
+
+    for i in range(height_size):
+        for j in range(width_size):
+            if maze[y + i][x + j] == cell:
+                maze[y + i][x + j] = color
+
+
+def color_pixels(maze, visited=None):
+    # BGR colors
+    if visited is None:
+        visited = []
+    colormap = {cell: (255, 255, 255),
+                wall: (0, 0, 0),
+                desert: (102, 204, 255),
+                sea: (255, 204, 102),
+                ice: (255, 153, 204),
+                end: (200, 0, 200),
+                start: (0, 255, 0)
+                }
+    visited_colormap = {cell: (166, 166, 166),
+                        wall: (0, 0, 0),
+                        desert: (137, 202, 203),
+                        sea: (110, 104, 80),
+                        ice: (110, 80, 109),
+                        end: (200, 0, 200),
+                        start: (153, 0, 0)
+                        }
     maze = np.array(maze)
-    white = (255, 255, 255)
-    black = (0, 0, 0)
-    special = (200, 0, 200)
-    img = np.array([[white if j == cell else black for j in i] for i in maze])
-    random_end = False
-    maze_shape = maze.shape
-    while not random_end:
-        random_row = np.random.randint(maze_shape[0])
-        random_col = np.random.randint(maze_shape[0])
-        if (img[random_row][random_col] == white).all():
-            img[random_row][random_col] = special
-            random_end = True
-    cv.imwrite("maze.png", img)
+    img = np.array([[colormap[j] for j in i] for i in maze])
+    for row, column in visited:
+        img[row, column] = visited_colormap[maze[row][column]]
+    return img
+
+def add_entrance_and_exit(maze):
+    start_coord = add_random_point(maze, start)
+    end_coord = add_random_point(maze, end)
+    return start_coord, end_coord
+
+def add_random_point(maze, marker):
+    height, width = len(maze), len(maze[0])
+    coordinates = None
+    while coordinates is None:
+        random_row = np.random.randint(height)
+        random_col = np.random.randint(width)
+        if (maze[random_row][random_col] == cell):
+            maze[random_row][random_col] = marker
+            coordinates = (random_row, random_col)
+    return coordinates
 
 
-m = init_maze(120, 75)
-create_maze_png(m)
+## maze_generation.py  copy end
+
+
+def create_maze_png(maze, filename, visited=None):
+    maze = np.array(maze)
+    color_random_areas(6, maze)
+    start_coord,end_coord = add_entrance_and_exit(maze)
+    print(start_coord,end_coord)
+    if visited is None:
+        visited = []
+    img = color_pixels(maze, visited)
+    cv.imwrite(filename, img)
+    return start_coord,end_coord
+
+
+maze = init_maze(120, 75)
+create_maze_png(maze, "maze.png")
