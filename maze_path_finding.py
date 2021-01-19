@@ -143,7 +143,65 @@ def recursive_search(maze, row, column, exit, visited):
             return True
     return False
 
+import maze_generation
+def tremaux(maze, entrance, exit):
 
+    visited = []
+    row, column = entrance
+
+    #first step
+    maze[row][column] = double_mark
+    visited.append((row, column))
+    row += 1
+    while (row, column) != exit:
+        visited.append((row, column))
+        possible = find_possible_moves(maze, row, column)
+
+        #check if we are facing a dead end
+        if len(possible) == 1:
+            maze[row][column] = double_mark
+            row, column = visited[-2]
+
+        #check if we are at a junction
+        elif len(possible) > 2:
+            no_marks = []
+            single_marks = []
+            double_marks = []
+            prev_possible = False
+            for (r, c) in possible:
+                if (r, c) == visited[-2] and maze[r][c] == single_mark:
+                    prev_possible = True
+                    continue
+                elif maze[r][c] == cell:
+                    no_marks.append((r, c))
+                elif maze[r][c] == single_mark:
+                    single_marks.append((r, c))
+                elif maze[r][c] == double_mark:
+                    double_marks.append((r, c))
+            if (len(no_marks) == 0 or len(no_marks) == 1 and no_marks[0] == visited[-2] ) and len(single_marks) == 0:
+                maze[row][column] = double_mark
+            # if it's an old junction, then if possible, we go back
+            if (len(single_marks) > 0 or len(double_marks) > 0) and prev_possible:
+                row, column = visited[-2]
+            # if it's not possible to go back or it's a new junction, then we choose the one with less marks
+            elif len(no_marks) > 0:
+                row, column = random.choice(no_marks)
+            elif len(single_marks) > 0:
+                row, column = random.choice(single_marks)
+            else:
+                print("Stuck")
+                return visited
+        #if there are only two options to move, then go forward
+        elif len(possible) == 2:
+            if visited[-2] in possible:
+                possible.remove(visited[-2])
+            maze[row][column] = single_mark if maze[row][column] == cell else double_mark
+            row, column = possible[0]
+        else:
+            print("Stuck")
+            return visited
+    visited.append(exit)
+    return visited
 
 
 

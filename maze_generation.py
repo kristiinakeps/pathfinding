@@ -12,6 +12,8 @@ desert = "d"
 ice = "i"
 end = "e"
 start = "t"
+single_mark = "*"
+double_mark = "x"
 
 def init_maze(width, height):
     maze = []
@@ -268,7 +270,9 @@ def color_pixels(maze, visited=None):
                 sea: (255, 204, 102),
                 ice: (255, 153, 204),
                 end: (200, 0, 200),
-                start: (153, 0, 0)
+                start: (153, 0, 0),
+                single_mark: (120, 239, 200),
+                double_mark: (120, 173, 239)
                 }
     visited_colormap = {cell: (166, 166, 166),
                 wall: (0, 0, 0),
@@ -276,7 +280,9 @@ def color_pixels(maze, visited=None):
                 sea: (110, 104, 80),
                 ice: (110, 80, 109),
                 end: (200, 0, 200),
-                start: (153, 0, 0)
+                start: (153, 0, 0),
+                single_mark: (120, 239, 200),
+                double_mark: (120, 173, 239)
                 }
     maze = np.array(maze)
     img = np.array([[colormap[j] for j in i] for i in maze])
