@@ -10,6 +10,9 @@ down = "down"
 forward = "continue"
 back = "backwards"
 
+single_mark = "*"
+double_mark = "x"
+
 def random_mouse(maze, entrance, exit):
     visited = []
     row, column = entrance
@@ -122,6 +125,23 @@ def pledge(maze, entrance, exit):
     visited.append(exit)
     return visited
 
+def recursive(maze, entrance, exit):
+    visited = []
+    recursive_search(maze, entrance[0], entrance[1], exit, visited)
+    visited.append(exit)
+    return visited
+
+def recursive_search(maze, row, column, exit, visited):
+    if (row, column) == exit:
+        return True
+    if maze[row][column] == wall or (row, column) in visited:
+        return False
+    visited.append((row, column))
+    possible = find_possible_moves(maze, row, column)
+    for r, c in possible:
+        if recursive_search(maze, r, c, exit, visited):
+            return True
+    return False
 
 
 
