@@ -11,7 +11,6 @@ ice = "i"
 end = "e"
 start = "t"
 
-
 def dfs_neighbour_check(maze, width, height, current_width, current_height):
     neighbours = []
     if 0 <= current_height - 2:
@@ -111,7 +110,8 @@ def init_maze(width, height):
                 wallcounter += 1
 
     delete_random_walls(0.05, maze, wallcounter)
-    return maze
+    start_coord, end_coord = add_entrance_and_exit(maze)
+    return maze,start_coord,end_coord
 
 
 ## maze_generation.py  copy start
@@ -209,10 +209,12 @@ def color_pixels(maze, visited=None):
         img[row, column] = visited_colormap[maze[row][column]]
     return img
 
+
 def add_entrance_and_exit(maze):
     start_coord = add_random_point(maze, start)
     end_coord = add_random_point(maze, end)
     return start_coord, end_coord
+
 
 def add_random_point(maze, marker):
     height, width = len(maze), len(maze[0])
@@ -229,17 +231,18 @@ def add_random_point(maze, marker):
 ## maze_generation.py  copy end
 
 
-def create_maze_png(maze, filename, visited=None):
+def create_maze_png(maze, filename, visited=None, special=True):
     maze = np.array(maze)
-    color_random_areas(6, maze)
-    start_coord,end_coord = add_entrance_and_exit(maze)
-    print(start_coord,end_coord)
+    maze_copy = maze.copy()
+    if special:
+        color_random_areas(6, maze_copy)
     if visited is None:
         visited = []
-    img = color_pixels(maze, visited)
+    img = color_pixels(maze_copy, visited)
     cv.imwrite(filename, img)
-    return start_coord,end_coord
 
 
-maze = init_maze(120, 75)
+maze,start_hw,end_hw = init_maze(120, 75)
+print(start_hw, end_hw)
 create_maze_png(maze, "maze.png")
+create_maze_png(maze, "maze2.png", special=False)

@@ -38,7 +38,8 @@ def establishVertices(maze_file, first_vertex):
 def distanceFunc(current, element, end, algoName, maze, colormap):
     move_value = colormap[tuple(maze[element.height][element.width])]
     if algoName == "dijkstra":
-        return current.distance + move_value * (np.sqrt((current.height - element.height) ** 2 + (current.width - element.width) ** 2))
+        return current.distance + move_value * (
+            np.sqrt((current.height - element.height) ** 2 + (current.width - element.width) ** 2))
     if algoName == "astar":
         return current.distance + move_value * (
             np.sqrt((current.height - element.height) ** 2 + (current.width - element.width) ** 2)) + np.sqrt(
@@ -94,7 +95,7 @@ def mazeAlgorithm(starting_vertex, algo_name, maze, image_vertices, end, show_vi
                 element.previous = current
                 break
             else:
-                if algo_name == 'depthfirst':
+                if algo_name in ('depthfirst', 'breadthfirst'):
                     to_process.append((element.distance, element))
                 else:
                     new_dist = distanceFunc(current, element, end, algo_name, maze, colormap)
@@ -111,6 +112,8 @@ def mazeAlgorithm(starting_vertex, algo_name, maze, image_vertices, end, show_vi
         while current.processed:
             if algo_name == 'depthfirst':
                 dist, current = to_process.pop()
+            elif algo_name == 'breadthfirst':
+                dist, current = to_process.pop(0)
             else:
                 dist, current = heapq.heappop(to_process)
 
@@ -141,20 +144,23 @@ def save_pic(maze):
 
 # dijkstra
 
-first = (15, 4)
-end = (59, 67)
+first = (20, 88)
+end = (53, 7)
 
 maze, image_vertices = establishVertices("maze.png", first)
-last, coverage = mazeAlgorithm(first, 'dijkstra', maze, image_vertices, end, False)
-create_files(last, coverage, 'dijkstra')
+last, coverage = mazeAlgorithm(first, 'dijkstra', maze, image_vertices, end, True)
+# create_files(last, coverage, 'dijkstra')
 
 # A star
 
 maze, image_vertices = establishVertices("maze.png", first)
-last, coverage = mazeAlgorithm(first, 'astar', maze, image_vertices, end, False)
+last, coverage = mazeAlgorithm(first, 'astar', maze, image_vertices, end, True)
 save_pic(maze)
 
 # Depth first search
 
 maze, image_vertices = establishVertices("maze.png", first)
-last, coverage = mazeAlgorithm(first, 'depthfirst', maze, image_vertices, end, False)
+last, coverage = mazeAlgorithm(first, 'depthfirst', maze, image_vertices, end, True)
+
+maze, image_vertices = establishVertices("maze.png", first)
+last, coverage = mazeAlgorithm(first, 'breadthfirst', maze, image_vertices, end, True)
