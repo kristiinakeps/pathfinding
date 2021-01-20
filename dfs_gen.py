@@ -241,8 +241,8 @@ def create_maze_png(maze, filename, visited=None, special=True):
     img = color_pixels(maze_copy, visited)
     cv.imwrite(filename, img)
 
-
-maze, start_hw, end_hw = init_maze(101, 101)
+for i in range(0,10000):
+    maze, start_hw, end_hw = init_maze(30,30)
 print(start_hw, end_hw)
 create_maze_png(maze, "maze1.png")
 create_maze_png(maze, "maze2.png", special=False)

@@ -106,7 +106,7 @@ def mazeAlgorithm(starting_vertex, algo_name, maze, image_vertices, end, show_vi
                 break
             else:
                 if algo_name in ('depthfirst', 'breadthfirst'):
-                    to_process.append((element.distance, element))
+                    to_process.append(element)
                 else:
                     new_dist = distanceFunc(current, element, end, algo_name, maze, colormap)
                     if new_dist < element.distance:
@@ -124,11 +124,11 @@ def mazeAlgorithm(starting_vertex, algo_name, maze, image_vertices, end, show_vi
         gone_through.append(current)
         while current.processed:
             if algo_name == 'depthfirst':
-                dist, current = to_process.pop()
+                current = to_process.pop()
             elif algo_name == 'breadthfirst':
-                dist, current = to_process.pop(0)
+                current = to_process.pop(0)
             else:
-                dist, current = heapq.heappop(to_process)
+                _, current = heapq.heappop(to_process)
 
     end_time = datetime.now()
     path = element.previous
