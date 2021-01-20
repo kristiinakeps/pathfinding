@@ -1,4 +1,6 @@
 import random
+import cv2
+import maze_generation
 
 wall = "w"
 cell = "c"
@@ -13,10 +15,17 @@ back = "backwards"
 single_mark = "*"
 double_mark = "x"
 
-def random_mouse(maze, entrance, exit):
+start = "t"
+
+def random_mouse(maze, entrance, exit, video=False):
+    if video:
+        out = cv2.VideoWriter("mouse.avi", cv2.VideoWriter_fourcc(*'DIVX'), 10,
+                              (len(maze[0]) * 4, len(maze) * 4))
     visited = []
     row, column = entrance
     while (row, column) != exit:
+        if video:
+            add_frame_to_video(maze, row, column, visited, out)
         visited.append((row, column))
         possible = find_possible_moves(maze, row, column)
         if len(possible) > 1:
@@ -26,12 +35,19 @@ def random_mouse(maze, entrance, exit):
                 pass
         row, column = random.choice(possible)
     visited.append(exit)
+    if video:
+        out.release()
     return visited
 
-def wall_follower(maze, entrance, exit):
+def wall_follower(maze, entrance, exit, video=False):
+    if video:
+        out = cv2.VideoWriter("wall.avi", cv2.VideoWriter_fourcc(*'DIVX'), 10,
+                              (len(maze[0]) * 4, len(maze) * 4))
     visited = []
     row, column = entrance
     while (row, column) != exit:
+        if video:
+            add_frame_to_video(maze, row, column, visited, out)
         visited.append((row, column))
         possible = find_possible_moves(maze, row, column)
         if len(visited) == 1:
@@ -40,6 +56,8 @@ def wall_follower(maze, entrance, exit):
             direction = determine_direction(row, column, visited[-2][0], visited[-2][1])
         (row, column), heading = find_new_direction(row, column, direction, possible)
     visited.append(exit)
+    if video:
+        out.release()
     return visited
 
 
@@ -103,11 +121,16 @@ def find_possible_moves(maze, row, column):
             possible.append((row, column + 1))
     return possible
 
-def pledge(maze, entrance, exit):
+def pledge(maze, entrance, exit, video=False):
+    if video:
+        out = cv2.VideoWriter("pledge.avi", cv2.VideoWriter_fourcc(*'DIVX'), 10,
+                              (len(maze[0]) * 4, len(maze) * 4))
     visited = []
     row, column = entrance
     degrees_turned = 0
     while (row, column) != exit:
+        if video:
+            add_frame_to_video(maze, row, column, visited, out)
         visited.append((row, column))
         # if degrees_turned is 0, then move down, if we face an obsticle, then we do wall following with right hand
         possible = find_possible_moves(maze, row, column)
@@ -122,17 +145,26 @@ def pledge(maze, entrance, exit):
                 degrees_turned -= 90
             elif heading == back:
                 degrees_turned -= 180
-        #maze_generation.create_maze_png(maze, "pledge.png", visited)
     visited.append(exit)
+    if video:
+        out.release()
     return visited
 
-def recursive(maze, entrance, exit):
+def recursive(maze, entrance, exit, video=False):
+    out = None
+    if video:
+        out = cv2.VideoWriter("recursive.avi", cv2.VideoWriter_fourcc(*'DIVX'), 10,
+                              (len(maze[0]) * 4, len(maze) * 4))
     visited = []
-    recursive_search(maze, entrance[0], entrance[1], exit, visited)
+    recursive_search(maze, entrance[0], entrance[1], exit, visited, video, out)
     visited.append(exit)
+    if video:
+        out.release()
     return visited
 
-def recursive_search(maze, row, column, exit, visited):
+def recursive_search(maze, row, column, exit, visited, video, out):
+    if video:
+        add_frame_to_video(maze, row, column, visited, out)
     if (row, column) == exit:
         return True
     if maze[row][column] == wall or (row, column) in visited:
@@ -140,13 +172,14 @@ def recursive_search(maze, row, column, exit, visited):
     visited.append((row, column))
     possible = find_possible_moves(maze, row, column)
     for r, c in possible:
-        if recursive_search(maze, r, c, exit, visited):
+        if recursive_search(maze, r, c, exit, visited, video, out):
             return True
     return False
 
-import maze_generation
-def tremaux(maze, entrance, exit):
-
+def tremaux(maze, entrance, exit, video=False):
+    if video:
+        out = cv2.VideoWriter("tremaux.avi", cv2.VideoWriter_fourcc(*'DIVX'), 10,
+                              (len(maze[0]) * 4, len(maze) * 4))
     visited = []
     row, column = entrance
 
@@ -155,6 +188,8 @@ def tremaux(maze, entrance, exit):
     visited.append((row, column))
     row += 1
     while (row, column) != exit:
+        if video:
+            add_frame_to_video(maze, row, column, visited, out, prev=maze[row][column])
         visited.append((row, column))
         possible = find_possible_moves(maze, row, column)
 
@@ -201,10 +236,15 @@ def tremaux(maze, entrance, exit):
         else:
             print("Stuck")
             return visited
-        #maze_generation.create_maze_png(maze, "tremaux_test.png", visited)
     visited.append(exit)
+    if video:
+        out.release()
     return visited
 
 
-
-
+def add_frame_to_video(maze, row, column, visited, out, prev=cell):
+    maze[row][column] = start
+    maze_png = maze_generation.create_maze_png(maze, "mouse.png", visited=visited)
+    maze_big = cv2.resize(maze_png, (maze_png.shape[1] * 4, maze_png.shape[0] * 4), interpolation=cv2.INTER_AREA)
+    out.write(maze_big)
+    maze[row][column] = prev

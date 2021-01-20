@@ -308,6 +308,7 @@ def create_maze_png(maze, filename, visited=None):
         visited = []
     img = color_pixels(maze, visited)
     cv.imwrite(filename, img)
+    return np.array(img, dtype="uint8")
 
 
 #maze, entrance, exit = init_maze(30, 30)
