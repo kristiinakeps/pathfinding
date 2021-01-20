@@ -109,8 +109,8 @@ def init_maze(width, height):
                 maze[i][j] = wall
                 wallcounter += 1
 
-    delete_random_walls(0.05, maze, wallcounter)
-    start_coord, end_coord = add_entrance_and_exit(maze)
+    # delete_random_walls(0.05, maze, wallcounter)
+    start_coord, end_coord = add_endtrance_and_exit_for_maze_path_finers(maze) # add_entrance_and_exit(maze)
     return maze,start_coord,end_coord
 
 
@@ -215,6 +215,40 @@ def add_entrance_and_exit(maze):
     end_coord = add_random_point(maze, end)
     return start_coord, end_coord
 
+def add_endtrance_and_exit_for_maze_path_finers(maze):
+    height, width = len(maze), len(maze[0])
+
+    #add dark edges
+    add_first_row = 1 if maze[0].count(cell) > 0 else 0
+    add_last_row = 1 if maze[height - 1].count(cell) > 0 else 0
+    add_first_column = 1 if [maze[i][0] for i in range(len(maze))].count(cell) > 0 else 0
+    add_last_column = 1 if [maze[i][width - 1] for i in range(len(maze))].count(cell) > 0 else 0
+
+    height += add_first_row + add_last_row
+    if add_last_row == 1:
+        maze.append([wall for i in range(width)])
+    if add_first_row == 1:
+        maze.insert(0, [wall for i in range(width)])
+    for i in range(height):
+        if add_first_column == 1:
+            maze[i].insert(0, wall)
+        if add_last_column == 1:
+            maze[i].append(wall)
+
+    height, width = len(maze), len(maze[0])
+    entrance = None
+    for i in range(0, width):
+        if (maze[1][i] == cell):
+            maze[0][i] = cell
+            entrance = (0, i)
+            break
+    exit = None
+    for i in range(width - 1, 0, -1):
+        if (maze[height - 2][i] == cell):
+            maze[height - 1][i] = cell
+            exit = (height - 1, i)
+            break
+    return entrance, exit
 
 def add_random_point(maze, marker):
     height, width = len(maze), len(maze[0])

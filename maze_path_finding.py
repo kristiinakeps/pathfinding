@@ -122,6 +122,7 @@ def pledge(maze, entrance, exit):
                 degrees_turned -= 90
             elif heading == back:
                 degrees_turned -= 180
+        #maze_generation.create_maze_png(maze, "pledge.png", visited)
     visited.append(exit)
     return visited
 
@@ -200,6 +201,7 @@ def tremaux(maze, entrance, exit):
         else:
             print("Stuck")
             return visited
+        #maze_generation.create_maze_png(maze, "tremaux_test.png", visited)
     visited.append(exit)
     return visited
 
