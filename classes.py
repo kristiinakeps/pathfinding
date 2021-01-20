@@ -4,6 +4,7 @@ import numpy as np
 import sys
 import heapq
 import copy
+import  time
 from datetime import datetime
 
 
@@ -66,7 +67,7 @@ def mazeAlgorithm(starting_vertex, algo_name, maze, image_vertices, end, show_vi
     # out = cv2.VideoWriter(algo_name + str(np.random.randint(100)) + '.avi',cv2.VideoWriter_fourcc(*'DIVX'), 200, (width*4,height*4))
     gone_through = []
     to_process = []
-    start_time = datetime.now()
+    start_time = time.time()
     continue_finding = True
     current = image_vertices[starting_vertex]
     gone_through.append(current)
@@ -122,28 +123,29 @@ def mazeAlgorithm(starting_vertex, algo_name, maze, image_vertices, end, show_vi
             # for video :
             # out.write(maze_big)
         gone_through.append(current)
-        while current.processed:
-            if algo_name == 'depthfirst':
-                current = to_process.pop()
-            elif algo_name == 'breadthfirst':
-                current = to_process.pop(0)
-            else:
-                _, current = heapq.heappop(to_process)
+        if continue_finding:
+            while current.processed:
+                if algo_name == 'depthfirst':
+                    current = to_process.pop()
+                elif algo_name == 'breadthfirst':
+                    current = to_process.pop(0)
+                else:
+                    _, current = heapq.heappop(to_process)
 
-    end_time = datetime.now()
+    end_time = time.time()
     path = element.previous
-    while path is not None:
-        maze[path.height, path.width] = [0, 0, 255]
-        maze_big = cv2.resize(maze, (maze.shape[1] * 4, maze.shape[0] * 4), interpolation=cv2.INTER_AREA)
-        cv2.imshow(algo_name, maze_big)
-        cv2.waitKey(1)
+    if show_visual:
+        while path is not None:
+            maze[path.height, path.width] = [0, 0, 255]
+            maze_big = cv2.resize(maze, (maze.shape[1] * 4, maze.shape[0] * 4), interpolation=cv2.INTER_AREA)
+            cv2.imshow(algo_name, maze_big)
+            cv2.waitKey(1)
+            # for video :
+            # out.write(maze_big)
+            path = path.previous
         # for video :
-        # out.write(maze_big)
-        path = path.previous
-    # for video :
-    # out.release()
-    print('Duration: {}'.format(end_time - start_time))
-    return element, gone_through
+        # out.release()
+    return element, gone_through,end_time-start_time
 
 
 def create_files(last_element, coverage_elements, algo_name):
@@ -166,34 +168,3 @@ def save_pic(maze, nr):
     cv2.imwrite('color_img' + str(nr) + '.png', maze)
 
 
-# dijkstra
-
-first = (10, 59)
-end = (84, 58)
-
-maze, image_vertices = establishVertices("maze1.png", first)
-last, coverage = mazeAlgorithm(first, 'dijkstra', maze, image_vertices, end, True)
-save_pic(maze, 1)
-# create_files(last, coverage, 'dijkstra')
-
-maze, image_vertices = establishVertices("maze2.png", first)
-last, coverage = mazeAlgorithm(first, 'dijkstra', maze, image_vertices, end, False)
-save_pic(maze, 2)
-
-# A star
-
-maze, image_vertices = establishVertices("maze1.png", first)
-last, coverage = mazeAlgorithm(first, 'astar', maze, image_vertices, end, False)
-save_pic(maze, 3)
-
-maze, image_vertices = establishVertices("maze2.png", first)
-last, coverage = mazeAlgorithm(first, 'astar', maze, image_vertices, end, False)
-save_pic(maze, 4)
-
-# Depth first search
-
-maze, image_vertices = establishVertices("maze.png", first)
-last, coverage = mazeAlgorithm(first, 'depthfirst', maze, image_vertices, end, False)
-
-maze, image_vertices = establishVertices("maze.png", first)
-last, coverage = mazeAlgorithm(first, 'breadthfirst', maze, image_vertices, end, False)

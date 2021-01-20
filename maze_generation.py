@@ -98,10 +98,12 @@ def init_maze(width, height):
         delete_wall(rand_wall_index, walls)
 
     # remaining unvisited cells will become walls
+    wallcounter = 0
     for i in range(0, height):
         for j in range(0, width):
             if (maze[i][j] == unvisited):
                 maze[i][j] = wall
+                wallcounter+=1
 
     # entrance
     entrance = None
@@ -118,7 +120,8 @@ def init_maze(width, height):
             exit = (height - 1, i)
             break
 
-    return maze, entrance, exit
+    #return maze, entrance, exit
+    return maze,wallcounter
 
 def surrounding_cells(rand_wall, maze):
     cells = 0
@@ -164,14 +167,16 @@ def check_bottom_cell(maze, rand_wall, walls, height):
 def delete_wall(rand_wall_index, walls):
     walls.pop(rand_wall_index)
 
+
 def delete_random_walls(nr_of_walls, maze):
     height, width = len(maze), len(maze[0])
     while nr_of_walls > 0:
         y = random.randint(0, height - 1)
         x = random.randint(0, width - 1)
         if maze[y][x] == wall:
-            maze[y][x] = cell
-            nr_of_walls -= 1
+           maze[y][x] = cell
+           nr_of_walls -= 1
+
 
 def color_random_areas(nr_of_areas, maze):
     colors = [sea, desert, ice]
@@ -242,6 +247,7 @@ def add_entrance_and_exit(maze):
     end_coord = add_random_point(maze, end)
     return start_coord, end_coord
 
+
 def add_random_point(maze, marker):
     height, width = len(maze), len(maze[0])
     coordinates = None
@@ -256,7 +262,14 @@ def add_random_point(maze, marker):
 
 def make_into_world(maze):
     start_coord, end_coord = add_entrance_and_exit(maze)
-    delete_random_walls(500, maze)
+    wallcounter = 0
+
+    for i in range(0, len(maze)):
+        for j in range(0, len(maze[0])):
+            if maze[i][j] == unvisited:
+                maze[i][j] = wall
+                wallcounter += 1
+    delete_random_walls(0.05, maze,wallcounter)
     color_random_areas(6, maze)
     return start_coord, end_coord
 
@@ -270,7 +283,7 @@ def color_pixels(maze, visited=None):
                 sea: (255, 204, 102),
                 ice: (255, 153, 204),
                 end: (200, 0, 200),
-                start: (153, 0, 0),
+                start: (0, 255, 0),
                 single_mark: (120, 239, 200),
                 double_mark: (120, 173, 239)
                 }
@@ -280,7 +293,7 @@ def color_pixels(maze, visited=None):
                 sea: (110, 104, 80),
                 ice: (110, 80, 109),
                 end: (200, 0, 200),
-                start: (153, 0, 0),
+                start: (80, 165, 0),
                 single_mark: (120, 239, 200),
                 double_mark: (120, 173, 239)
                 }
@@ -297,6 +310,7 @@ def create_maze_png(maze, filename, visited=None):
     cv.imwrite(filename, img)
 
 
-maze, entrance, exit = init_maze(70, 50)
+#maze, entrance, exit = init_maze(30, 30)
+#starting_v,ending_v = make_into_world(maze)
 #start_coord, end_coord = make_into_world(maze)
-create_maze_png(maze, "maze.png")
+#create_maze_png(maze, "maze.png")

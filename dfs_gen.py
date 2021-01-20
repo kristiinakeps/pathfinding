@@ -109,9 +109,9 @@ def init_maze(width, height):
                 maze[i][j] = wall
                 wallcounter += 1
 
-    # delete_random_walls(0.05, maze, wallcounter)
-    start_coord, end_coord = add_endtrance_and_exit_for_maze_path_finers(maze) # add_entrance_and_exit(maze)
-    return maze,start_coord,end_coord
+    delete_random_walls(0.05, maze, wallcounter)
+    # start_coord, end_coord = add_endtrance_and_exit_for_maze_path_finers(maze)
+    return maze
 
 
 ## maze_generation.py  copy start
@@ -276,7 +276,8 @@ def create_maze_png(maze, filename, visited=None, special=True):
     cv.imwrite(filename, img)
 
 
-maze, start_hw, end_hw = init_maze(101, 101)
-print(start_hw, end_hw)
-create_maze_png(maze, "maze1.png")
-create_maze_png(maze, "maze2.png", special=False)
+
+#maze, start_hw, end_hw = init_maze(101, 101)
+#print(start_hw, end_hw)
+#create_maze_png(maze, "maze1.png")
+#create_maze_png(maze, "maze2.png", special=False)
