@@ -2,4 +2,4 @@
 ### Project for the course Algorithmics (MTAT.03.238)
 Authors: Hanna Britt Parman, Kristiina Keps
 
-In this project we try out different pathfinding algorithms like Djikstra, A*, DFS. We generate random mazes using Randomized Prim's algorithm and compare the performance of the pathfinding algorithms in these mazes.
+In this project we try out two maze generation algorithms: Randomized Prim's algortihm and DFS with flooding. We then use different maze solvers to solve these paths like random mouse, wall follower, Pledge, Trémaux and recursive algorithm. We also implement shortest path algorithms Djikstra, A*, DFS and BFS.
